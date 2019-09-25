@@ -37,7 +37,8 @@ public class PlayerController : MonoBehaviour
     public Material mat;
     public bool standing;
     public float glow_speed;
-
+    public float falling_speed;
+    public Vector3 rb_velocity;
     #endregion
 
     // Start is called before the first frame update
@@ -97,6 +98,12 @@ public class PlayerController : MonoBehaviour
         {
             my_rb.AddForce(my_tr.up * jump_speed, ForceMode.Impulse);
         }
+
+        if(my_rb.velocity.y <= 0 && !grounded)
+        {
+            my_rb.velocity -= my_tr.up * Time.deltaTime * falling_speed;
+        }
+        rb_velocity = my_rb.velocity;
     }
 
 
@@ -107,6 +114,7 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("Hey");
             mat = col.transform.GetComponent<Renderer>().material;
             StartCoroutine("Glow");
+
         }
         //if (col.transform.tag == "Glow")
         //{
@@ -114,30 +122,29 @@ public class PlayerController : MonoBehaviour
         //    standing = false;
         //}
     }
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.tag == "Glow")
-        {
-            Debug.LogError("Hey");
-            mat = collision.transform.GetComponent<Renderer>().material;
-            StartCoroutine("Glow");
-        }
-    }
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.transform.tag == "Glow")
-        {
-            //Debug.LogError(collision.transform.GetComponent<MeshRenderer>().material);
-            standing = false;
-        }
-    }
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.transform.tag == "Glow")
+    //    {
+    //        Debug.LogError("Hey");
+    //        mat = collision.transform.GetComponent<Renderer>().material;
+    //        StartCoroutine("Glow");
+    //    }
+    //}
+    //private void OnCollisionExit(Collision collision)
+    //{
+    //    if (collision.transform.tag == "Glow")
+    //    {
+    //        standing = false;
+    //    }
+    //}
     IEnumerator Glow()
     {
         standing = true;
 
         while (standing)
         {
-            mat.SetFloat("Vector1_C5C79D8E", mat.GetFloat("Vector1_C5C79D8E") + Time.deltaTime * glow_speed);
+            mat.SetFloat("Vector1_C5C79D8E", 2.5f /*mat.GetFloat("Vector1_C5C79D8E") + Time.deltaTime * glow_speed*/);
             yield return new WaitForEndOfFrame();
         }
 
@@ -160,23 +167,23 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    //void OnCollisionEnter(Collision col)
-    //{
-    //    if(col.transform.tag == "Ground")
-    //    {
-    //        grounded = true;
-    //        my_anim.SetBool("Grounded", grounded);
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.transform.tag == "Ground")
+        {
+            grounded = true;
+            my_anim.SetBool("Grounded", grounded);
 
-    //    }
-    //}
-    //void OnCollisionExit(Collision col)
-    //{
-    //    if(col.transform.tag == "Ground")
-    //    {
-    //        grounded = false;
+        }
+    }
+    void OnCollisionExit(Collision col)
+    {
+        if (col.transform.tag == "Ground")
+        {
+            grounded = false;
 
-    //        my_anim.SetBool("Grounded", grounded);
+            my_anim.SetBool("Grounded", grounded);
 
-    //    }
-    //}
+        }
+    }
 }
